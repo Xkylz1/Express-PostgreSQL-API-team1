@@ -1,3 +1,4 @@
+const morgan = require("morgan");
 const express = require("express");
 const usersRoute = require("./routes/usersRoute");
 const carsRoute = require("./routes/carsRoute");
@@ -7,8 +8,31 @@ const driverRoutes = require("./routes/driverRoute");
 const app = express();
 const port = 3000;
 
-// Reading json from body (client)
+// Middleware Reading json from body (client)
 app.use(express.json());
+
+// middleware: LOGGINGG!! 3rd party package
+app.use(morgan());
+
+// contoh middleware yg dibuat sendiri
+app.use((req, res, next) => {
+  console.log("incoming request ...");
+  // better logging di bawah
+  next();
+});
+
+//logging
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  // better logging di bawah
+  next();
+});
+
+app.use((req, res, next) => {
+  req.userName = "FSW2";
+  // better logging di bawah
+  next();
+});
 
 // Health Check
 app.get("/", async (req, res) => {

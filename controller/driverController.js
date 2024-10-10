@@ -5,7 +5,8 @@ async function getAllDrivers(req, res) {
     const drivers = await Driver.findAll();
 
     res.status(200).json({
-      status: "200",
+      statusCode: "200",
+      status:"succes",
       message: "Success get drivers data",
       isSuccess: true,
       data: { drivers },
