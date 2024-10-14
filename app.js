@@ -4,6 +4,8 @@ const usersRoute = require("./routes/usersRoute");
 const carsRoute = require("./routes/carsRoute");
 const sparepartsRoute = require("./routes/sparepartsRoute");
 const driverRoutes = require("./routes/driverRoute");
+const dashboardRoutes = require("./routes/dashboardRoute.js");
+
 
 const app = express();
 const port = 3000;
@@ -34,6 +36,23 @@ app.use((req, res, next) => {
   next();
 });
 
+
+//middleware agar express bisa membaca static file
+app.use(express.static(`${__dirname}/public`))
+
+// panggil view engine
+app.set("view engine", "ejs");
+
+app.get("/dashboard/admin", async (req, res) => {
+  try {
+    res.render("index.ejs", {
+      greeting: "hello fsw 2 dengan data dinamis",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // Health Check
 app.get("/", async (req, res) => {
   try {
@@ -52,6 +71,8 @@ app.get("/", async (req, res) => {
   }
 });
 
+// Dashboard
+app.use("/dashboard/admin",dashboardRoutes)
 // Routes
 app.use("/api/v1/users", usersRoute);
 app.use("/api/v1/cars", carsRoute);
