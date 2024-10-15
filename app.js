@@ -1,57 +1,59 @@
-const morgan = require("morgan");
+const morgan = require('morgan');
 const express = require("express");
 const usersRoute = require("./routes/usersRoute");
 const carsRoute = require("./routes/carsRoute");
 const sparepartsRoute = require("./routes/sparepartsRoute");
 const driverRoutes = require("./routes/driverRoute");
-const dashboardRoutes = require("./routes/dashboardRoute.js");
-
+const dashboardRoutes = require("./routes/dashboardRoute");
 
 const app = express();
 const port = 3000;
 
-// Middleware Reading json from body (client)
+// Middleware : Reading json from body (client)
 app.use(express.json());
 
-// middleware: LOGGINGG!! 3rd party package
+// Middleware : agar dari view engine form kebaca (request body) nya
+app.use(express.urlencoded({ extended: false }))
+
+// middleware: LOGGING !! third party package
 app.use(morgan());
 
-// contoh middleware yg dibuat sendiri
+// contoh middleware yang dibuat sendiri
 app.use((req, res, next) => {
-  console.log("incoming request ...");
-  // better logging di bawah
+  console.log('incoming request ...')
+  // better logging dibawah nya
   next();
-});
+})
 
-//logging
+// logging basic
 app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  // better logging di bawah
+  req.requestTime = new Date().toISOString()
+  // better logging dibawah nya
   next();
-});
+})
 
+// logging basic
 app.use((req, res, next) => {
-  req.userName = "FSW2";
-  // better logging di bawah
+  req.username = "FSW2"
+  // better logging dibawah nya
   next();
-});
+})
 
-
-//middleware agar express bisa membaca static file
+// middleware : bisa membuat express application kita membaca static file
 app.use(express.static(`${__dirname}/public`))
 
-// panggil view engine
+// panggil view engine 
 app.set("view engine", "ejs");
 
-app.get("/dashboard/admin", async (req, res) => {
+app.get("/dashboard/admin/", async (req, res) => {
   try {
-    res.render("index.ejs", {
-      greeting: "hello fsw 2 dengan data dinamis",
-    });
+    res.render("index", {
+      greeting: "Hello FSW 2 dengan data dinamis, kalian luar biasa"
+    })
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-});
+})
 
 // Health Check
 app.get("/", async (req, res) => {
@@ -71,9 +73,10 @@ app.get("/", async (req, res) => {
   }
 });
 
-// Dashboard
-app.use("/dashboard/admin",dashboardRoutes)
-// Routes
+// Dashboar route
+app.use("/dashboard/admin", dashboardRoutes);
+
+// API Routes
 app.use("/api/v1/users", usersRoute);
 app.use("/api/v1/cars", carsRoute);
 app.use("/api/v1/spareparts", sparepartsRoute);
@@ -81,6 +84,13 @@ app.use("/api/v1/drivers", driverRoutes);
 
 // Middleware to handle page not found
 app.use((req, res, next) => {
+  // console.log("proses kapan request")
+  // console.log(req.requestTime)
+  // console.log("proses siapa yang request")
+  // console.log(req.username)
+  // console.log("proses API apa yang diminta")
+  // console.log(req.originalUrl)
+
   res.status(404).json({
     status: "Failed",
     message: "API not found !",

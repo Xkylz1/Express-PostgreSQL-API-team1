@@ -1,18 +1,13 @@
 const { Car } = require("../models");
-const imagekit = require("../lib/imagekit");
-
 
 async function getAllCars(req, res) {
     try {
-        // logging
-        // console.log("proses saat ada yang request")
+        // console.log("proses kapan request")
         // console.log(req.requestTime)
         // console.log("proses siapa yang request")
-        // console.log(req.userName)
+        // console.log(req.username)
         // console.log("proses API apa yang diminta")
         // console.log(req.originalUrl)
-
-
 
         const cars = await Car.findAll();
 
@@ -129,56 +124,24 @@ async function updateCar(req, res) {
 
 async function createCar(req, res) {
     const { plate, model, type, year } = req.body;
-    const files = req.files;
-    let uploadedImages = [];
 
     try {
-        if (files && files.length > 0) {
-            uploadedImages = await Promise.all(
-                files.map(async (file) => {
-                    const ext = file.originalname.split('.').pop();
-                    const uploadedImage = await imagekit.upload({
-                        file: file.buffer,  // File buffer
-                        fileName: `CarImage-${Date.now()}.${ext}`,
-                    });
-
-                    return uploadedImage.url;
-                })
-            );
-        } else {
-            return res.status(400).json({
-                status: "Failed",
-                message: "No images provided",
-                isSuccess: false,
-                data: null,
-            });
-        }
-
-        const newCar = await Car.create({
-            plate,
-            model,
-            type,
-            year,
-            images: uploadedImages,
-        });
-
+        const newCar = await Car.create({ plate, model, type, year });
         res.status(200).json({
             status: "Success",
-            message: "Car created successfully",
+            message: "Ping successfully",
             isSuccess: true,
             data: { newCar },
         });
     } catch (error) {
         res.status(500).json({
-            status: "Failed",
-            message: "Failed to create car data",
+            status: "500",
+            message: "Failed to get cars data",
             isSuccess: false,
             error: error.message,
         });
     }
 }
-
-
 
 module.exports = {
     createCar,

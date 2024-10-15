@@ -5,8 +5,7 @@ async function getAllDrivers(req, res) {
     const drivers = await Driver.findAll();
 
     res.status(200).json({
-      statusCode: "200",
-      status:"succes",
+      status: "200",
       message: "Success get drivers data",
       isSuccess: true,
       data: { drivers },
@@ -28,7 +27,7 @@ async function getDriverById(req, res) {
 
     if (!driver) {
       return res.status(404).json({
-        status: "404",
+        status: "400",
         message: "Driver Not Found!",
       });
     }

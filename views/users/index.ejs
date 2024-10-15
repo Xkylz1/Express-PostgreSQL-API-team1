@@ -1,15 +1,24 @@
-<table>
-  <th>name</th>
-  <th>photo profile</th>
-  <th>age</th>
-  <th>phone number</th>
- <% console.log(users); %>
-  <% users.map((user) => { %>
-  <tr>
-    <td><%= user.firstName %></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <% }) %>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table>
+        <th>name</th>
+        <th>photo profile</th>
+        <th>age</th>
+        <th>phone number</th>
+        <% users.map((user) => { %> 
+            <tr>
+                <td><%= user.firstName %></td>
+                <td><%= user.age %></td>
+                <td><%= user.phoneNumber %></td>
+                <td><img src="<%= user.photoProfile %>"></td>
+            </tr>
+        <% }) %>
+    </table>
+</body>
+</html>

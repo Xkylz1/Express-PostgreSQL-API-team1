@@ -1,137 +1,163 @@
 const { User } = require("../models");
+const imagekit = require("../lib/imagekit");
+
+// Function for get all user data to render in page
+async function userPage(req, res) {
+    try {
+        const users = await User.findAll();
+        console.log(users.data)
+        res.render("users/index", {
+            users
+        })
+    } catch (error) {
+        res.render("error", {
+            message: error.message
+        })
+    }
+}
 
 async function userPage(req, res) {
-  try {
-    const users = await User.findAll();
+    try {
+        const users = await User.findAll();
+        console.log(users.data)
+        res.render("users/index", {
+            users
+        })
+    } catch (error) {
+        res.render("error", {
+            message: error.message
+        })
+    }
+}
 
-    res.render("users/index", {
-      users
-    });
-  } catch (error) {
-    // res.render("error", {
-    //   message: error.message,
-    // });
-  }
+async function createUser(req, res) {    
+    console.log(req.body)
+    const newUser = req.body;
+    try {
+        await User.create({ ...newUser });
+        res.redirect('/dashboard/admin/users')
+    } catch (error) {
+       res.redirect('/error')
+    }
 }
 
 async function createPage(req, res) {
-  try {
-    // const users = await User.findAll();
-
-    res.render("users/create.ejs", {
-      users
-    });
-  } catch (error) {
-    // res.render("error", {
-    //   message: error.message,
-    // });
-  }
+    try {
+        res.render("users/create")
+    } catch (error) {
+        res.render("error", {
+            message: error.message
+        })
+    }
 }
-async function createUser(req, res) {
-  const file = req.file;
-  console.log(req.file);
 
-  
-  // process file
-  const split = file.originalname.split(".");
-  const ext = split[split.length - 1];
-  // upload image ke server
-  const uploadedImage = await imagekit.upload({
-    file: file.buffer,
-    fileName: `Profile-${Date.now()}.${ext}`,
-  });
-
-  console.log(uploadedImage);
-  if (!uploadedImage) {
-    return res.status(400).json({
-      status: "Failed",
-      message: "Failed to add user data",
-      isSuccess: false,
-      data: null,
-    });
-  }
-
-  const newUser = req.body;
-
-  try {
-    await User.create({ ...newUser,photoProfile: uploadedImage.url });
-
-    res.status(200).json({
-      status: "Success",
-      message: "Successfully added user data",
-      isSuccess: true,
-      data: { ...newUser, photoProfile: uploadedImage.url },
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "Failed",
-      message: "Failed to add user data",
-      isSuccess: false,
-      data: null,
-      error: error.message,
-    });
-  }
+// Function for get user data by id
+async function getUserById(req, res) {
+    const id = req.params.id;
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "Can't find spesific id user",
+                isSuccess: false,
+                data: null,
+            });
+        }
+        res.status(200).json({
+            status: "Success",
+            message: "Successfully obtained user data",
+            isSuccess: true,
+            data: { user },
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "Failed",
+            message: "Failed to get user data",
+            isSuccess: false,
+            data: null,
+            error: error.message,
+        });
+    }
 }
-// async function getDriverById(req, res) {
-//   const id = req.params.id;
-//   try {
-//     const driver = await Driver.findByPk(id);
 
-//     if (!driver) {
-//       return res.status(404).json({
-//         status: "404",
-//         message: "Driver Not Found!",
-//       });
-//     }
+// Function for delete user by id
+async function deleteUserById(req, res) {
+    const id = req.params.id;
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "Can't find spesific id user",
+                isSuccess: false,
+                data: null,
+            });
+        }
 
-//     res.status(200).json({
-//       status: "200",
-//       message: "Success get drivers data",
-//       isSuccess: true,
-//       data: driver,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       status: "500",
-//       message: "Failed to get drivers data",
-//       isSuccess: false,
-//     });
-//   }
-// }
-// async function deleteDriverById(req, res) {
-//   const id = req.params.id;
-//   try {
-//     const driver = await Driver.findByPk(id);
+        await user.destroy();
 
-//     if (driver) {
-//       await driver.destroy();
+        res.status(200).json({
+            status: "Success",
+            message: "Successfully delete user data",
+            isSuccess: true,
+            data: { user },
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "Failed",
+            message: "Failed to delete user data",
+            isSuccess: false,
+            data: null,
+            error: error.message,
+        });
+    }
+}
 
-//       res.status(200).json({
-//         status: "200",
-//         message: "Success get drivers data",
-//         isSuccess: true,
-//         data: driver,
-//       });
-//     } else {
-//       res.status(200).json({
-//         status: "204",
-//         message: "Success delete drivers data",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       status: "500",
-//       message: "Failed to get cars data",
-//       isSuccess: false,
-//       error: error.message,
-//       data: null,
-//     });
-//   }
-// }
+// Function for update user by id
+async function UpdateUserById(req, res) {
+    const { firstName, lastName, age, phoneNumber } = req.body;
+    const id = req.params.id;
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "Can't find spesific id user",
+                isSuccess: false,
+                data: null,
+            });
+        }
+
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.age = age;
+        user.phoneNumber = phoneNumber;
+
+        await user.save();
+
+        res.status(200).json({
+            status: "Success",
+            message: "Successfully update user data",
+            isSuccess: true,
+            data: { user },
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "Failed",
+            message: "Failed to update user data",
+            isSuccess: false,
+            data: null,
+            error: error.message,
+        });
+    }
+}
 
 module.exports = {
-  userPage,
-  createPage
-  // getDriverById,
-  // deleteDriverById,
+    userPage,
+    createPage,
+    getUserById,
+    deleteUserById,
+    UpdateUserById,
+    createUser,
 };
